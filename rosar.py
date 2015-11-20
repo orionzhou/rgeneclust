@@ -38,6 +38,20 @@ def pfam_scan(fm, fi, fo, nproc):
     os.system(cmd)
     cmd = "cut -f2-4,6,7-9,11-13 %s.4.htb > %s" % (fo, fo)
     os.system(cmd)
+from itertools import groupby
+from operator import itemgetter
+def extract_nbs(fi, fo):
+    ary = np.genfromtxt(fi, names = True, dtype = None)
+    ary_sorted = sorted(ary, key = lambda x: (x[0], x[1]))
+
+    fho = open(fo, "w")
+    print >>fho, "\t".join(["org", "gid", "doms", "conf"])
+    for key, valuesiter in groupby(ary_sorted, key = itemgetter(0)):
+        res = [v[4] for v in valuesiter if v[8] < 1e-5 and v[2]-v[1]+1 >= 20]
+        (org, gid) = key.split("|", 1)
+        if 'NB-ARC' in res:
+            print >>fho, "%s\t%s\t%s\t%s" % (org, gid, ",".join(res), '')
+    fho.close()
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description = 'Identify, cluster and characterizie plant NBS-LRR genes'
@@ -75,4 +89,4 @@ if __name__ == '__main__':
 #    merge_seqs(fis, orgs, f01)
     f11 = op.join(dirw, "11")
 #    pfam_scan(f_pfam, f01, f11, nproc)
-
+    extract_nbs('11.htb', '21.tbl')
