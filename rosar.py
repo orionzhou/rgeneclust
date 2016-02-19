@@ -11,6 +11,7 @@ import usearch
 import multiprocessing
 nproc = multiprocessing.cpu_count()
 
+import gzip
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
@@ -19,11 +20,13 @@ def read_cfg(fc):
     fhc = open(fc, "r")
     for line in fhc:
         line = line.strip("\n")
+        line = line.strip("\r")
         if line == "":
             break
         (org, fi) = line.split(",")
         if not os.access(fi, os.R_OK):
             print "no access to input file: %s" % fi
+            print os.access(fi, os.F_OK)
             sys.exit(1)
         orgs.append(org)
         fis.append(fi)
@@ -33,7 +36,14 @@ def merge_seqs(fis, orgs, fo):
     print "merging input files to %s" % fo
     seqs = []
     for i in range(0,len(orgs)):
-        seq_it = SeqIO.parse(open(fis[i], "rU"), "fasta")
+        handle = 0
+        if (fis[i].endswith(".gz")):
+            handle = gzip.open(fis[i], "rb")
+        else:
+            handle = open(fis[i], "rU")
+        seq_it = SeqIO.parse(handle, "fasta")
+        handle.close
+
         seqs1 = [SeqRecord(rcd.seq, id = orgs[i] + "|" + rcd.id,
             description = '') for rcd in seq_it]
         seqs += seqs1
