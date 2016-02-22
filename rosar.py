@@ -132,10 +132,10 @@ if __name__ == '__main__':
     
 #    merge_seqs(fis, orgs, "01.cds.fas")
 #    cds2pro("01.cds.fas", "05.pro.fas")
-#    pfam_scan(f_pfam, '05.pro.fas', '11', nproc)
+    pfam_scan(f_pfam, '05.pro.fas', '11', nproc)
+    sys.exit(1);
 #    os.system("ncoils.py 05.pro.fas")
 #    extract_nbs("11.htb", "21.tbl", "01.cds.fas", "05.pro.fas", "23.nbs.cds.fas", "22.nbs.pro.fas")
     cmd = "usearch -cluster_fast %s -sort length -id %g -uc %s" % ('23.nbs.cds.fas', 0.8, '31.uc')
     os.system(cmd)
     usearch.usearch2tbl('31.uc', '32.tbl')
-    sys.exit(1);
