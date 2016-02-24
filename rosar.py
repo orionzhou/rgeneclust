@@ -59,10 +59,15 @@ def cds2pro(fi, fo):
     SeqIO.write(seqs, fho, "fasta")
     fho.close()
 
+def getDigits(num): 
+    digit = 1
+    while int(num / 10) >= 1:
+        num = int(num/10)
+        digit += 1
+    return digit
 def pfam_scan(fm, fi, fo, nproc):
     print "running hmmscan, using %d processors" % nproc
-    cmd = "time hmmscan --cpu %d -o %s.1.txt %s %s" % (nproc, fo, fm, fi) 
-    print cmd
+    cmd = "hmmscan --cpu %s -o %s.1.txt %s %s" % (nproc, fo, fm, fi)
     os.system(cmd)
     cmd = "hmmc2htb.pl -i %s.1.txt -o %s.2.htb -m %s -s %s" % (fo, fo, fm, fi)
     os.system(cmd)
@@ -70,7 +75,7 @@ def pfam_scan(fm, fi, fo, nproc):
     os.system(cmd)
     cmd = "htb.filter.pl -i %s.3.htb -l 10 -e 0.01 -o %s.4.htb" % (fo, fo)
     os.system(cmd)
-    cmd = "cut -f2-4,6,7-9,11-13 %s.4.htb > %s" % (fo, fo)
+    cmd = "cut -f2-4,6,7-9,11-13 %s.4.htb > %s.htb" % (fo, fo)
     os.system(cmd)
 from itertools import groupby
 from operator import itemgetter
@@ -116,26 +121,26 @@ if __name__ == '__main__':
     (orgs, fis) = read_cfg(fc)
     if not op.exists(dirw): os.makedirs(dirw)
     
-    f_pfam = '/home/youngn/zhoup/Data/db/pfam_v29/Pfam-A.hmm'
-    if not os.access(f_pfam, os.R_OK):
-        print "no access to the Pfam-A.hmm file"
-        sys.exit(1)
-    
     cdir = os.path.dirname(os.path.realpath(__file__))
     os.environ['PATH'] = os.environ['PATH']+':'+cdir
     cwd = os.getcwd()
     os.chdir(dirw)
     
+    f_hmm = op.join(cdir, 'rdoms.hmm')
+    if not os.access(f_hmm, os.R_OK):
+        print "no access to " + f_hmm
+        sys.exit(1)
+    
     print "%d input files detected" % len(fis)
     print "species to work on: %s" % "  ".join(orgs)
     print "output directory: %s" % dirw
     
-#    merge_seqs(fis, orgs, "01.cds.fas")
-#    cds2pro("01.cds.fas", "05.pro.fas")
-    pfam_scan(f_pfam, '05.pro.fas', '11', nproc)
-    sys.exit(1);
-#    os.system("ncoils.py 05.pro.fas")
-#    extract_nbs("11.htb", "21.tbl", "01.cds.fas", "05.pro.fas", "23.nbs.cds.fas", "22.nbs.pro.fas")
+    merge_seqs(fis, orgs, "01.cds.fas")
+    cds2pro("01.cds.fas", "05.pro.fas")
+    pfam_scan(f_hmm, '05.pro.fas', '11', nproc)
+    os.system("ncoils.py 05.pro.fas")
+    extract_nbs("11.htb", "21.tbl", "01.cds.fas", "05.pro.fas", "23.nbs.cds.fas", "22.nbs.pro.fas")
     cmd = "usearch -cluster_fast %s -sort length -id %g -uc %s" % ('23.nbs.cds.fas', 0.8, '31.uc')
     os.system(cmd)
     usearch.usearch2tbl('31.uc', '32.tbl')
+    sys.exit(1);
