@@ -21,7 +21,7 @@ SPADA is dependent on a list of open source packages:
 ##Usage:
   python rosar.py cfg.csv --out test
 
-Config file (cfg.csv):
+Config file (test.csv):
   A text file with species identifier followed by the absolute path of 
   CDS fasta in each line, for example:
     
