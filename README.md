@@ -2,7 +2,7 @@
 A pipeline to characterize and cluster plant NBS-LRR (NB-LRR) genes, phylogenetic analysis and visualization
 
 ## Dependencies
-SPADA is dependent on a list of open source packages:
+This package is dependent on a list of open source packages:
  * Required packages
    * Perl5 https://www.perl.org
    * Python 2.7 https://www.python.org/downloads/
