@@ -16,6 +16,7 @@ This package is dependent on a list of open source packages:
    * Time::HiRes
    * Data::Dumper
  * Required python packages:
+   * numpy http://www.numpy.org
    * pyfasta 0.5 https://pypi.python.org/pypi/pyfasta/
 
 ##Usage:

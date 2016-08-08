@@ -7,7 +7,7 @@ import re
 import os.path as op
 import numpy as np
 
-def usearch2tbl(fi, fo):
+def uc2tbl(fi, fo):
     fhi = open(fi, "r")
     fho = open(fo, "w")
     print >>fho, "grp\tid"
@@ -20,6 +20,9 @@ def usearch2tbl(fi, fo):
             print >>fho, "%d\t%s" % (grp, id)
     fhi.close()
     fho.close()
+def cluster2tbl(fi, fo):
+    cmd = "echo -e \"grp\tid\" | cat - %s > /tmp/out && mv /tmp/out %s" % (fi, fo)
+    os.system(cmd)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

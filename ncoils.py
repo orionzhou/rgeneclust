@@ -33,6 +33,7 @@ if __name__ == '__main__':
 
     cwd = os.getcwd()
     os.chdir(dirw)
+    os.system("rm *.out")
     while not op.exists('01.out') or op.getsize('01.out') == 0:
         os.system("%s -c -win 21 -min_P 0.75 <%s >%s" % (f_ncoil, fi, '01.out'))
     while not op.exists('02.out') or op.getsize('02.out') == 0:

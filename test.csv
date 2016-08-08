@@ -1,3 +1,3 @@
-Fv,/home/youngn/zhoup/git/rgeneclust/test.cds/fvesca_v1.0_genemark_hybrid.fna.gz
-Md,/home/youngn/zhoup/git/rgeneclust/test.cds/Malus_x_domestica.v1.0.consensus_CDS.fa.gz
-Pp,/home/youngn/zhoup/git/rgeneclust/test.cds/Prunus_persica_v1.0_CDS.fa.gz
+Md,/home/youngn/zhoup/git/rgeneclust/rosa.cds/Malus_x_domestica.v3.0.a1_gene_set_cds.fasta.gz
+Pp,/home/youngn/zhoup/git/rgeneclust/rosa.cds/Prunus_persica_v2.0.a1.primaryTrs.cds.fa.gz
+Fv,/home/youngn/zhoup/git/rgeneclust/rosa.cds/fvesca_v1.0_genemark_hybrid.fna.gz
