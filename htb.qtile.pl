@@ -29,6 +29,7 @@ use lib "$FindBin::Bin";
 use Getopt::Long;
 use Pod::Usage;
 use Location;
+use Data::Dumper;
 use Htb;
 use List::Util qw/min max sum/;
 use List::MoreUtils qw/first_index first_value insert_after apply indexes pairwise zip uniq/;
@@ -90,11 +91,32 @@ for my $qId (sort(keys(%$h))) {
     my ($qb, $qe, $idx) = @$_;
     my ($id, $qBeg, $qEnd, $qSize, $hId, $hBeg, $hEnd, $hSize, 
       $e, $score, $ql, $hl) = @{$ary[$idx]};
-    my ($hb, $he) = map {coordTransform($_, $ql, "+", $hl, "+")} ($qb, $qe);
-    ($hb, $he) = ($he, $hb) if $hb > $he;
+#    print join(" ", $qId, $qb, $qe, $qBeg, $qEnd)."\n";
+#    print Dumper($ql);
+  
+    my ($idx1, $pos1) = find_interval($qb, $ql);
+    $qb = $pos1;
+    my ($idx2, $pos2) = find_interval($qe, $ql);
+    $qe = $pos2;
+    my $nql = [map {[$ql->[$_]->[0], $ql->[$_]->[1]]} ($idx1..$idx2)];
+    $nql->[0]->[0] = max($qb, $nql->[0]->[0]);
+    $nql->[-1]->[1] = min($qe, $nql->[-1]->[1]);
+    $nql = [ map {[$_->[0]-$qb+1, $_->[1]-$qb+1]} @$nql ];
+    
+    my ($rangeI, $rangeO);
+    ($rangeI, $rangeO) = map {$_->[$idx1]} ($ql, $hl);
+    my $hb = ($qb - $rangeI->[0]) + $rangeO->[0];
+    ($rangeI, $rangeO) = map {$_->[$idx2]} ($ql, $hl);
+    my $he = ($qe - $rangeI->[0]) + $rangeO->[0];
+    my $nhl = [map {[$hl->[$_]->[0], $hl->[$_]->[1]]} ($idx1..$idx2)];
+    $nhl->[0]->[0] = max($hb, $nhl->[0]->[0]);
+    $nhl->[-1]->[1] = min($he, $nhl->[-1]->[1]);
+    $nhl = [ map {[$_->[0]-$hb+1, $_->[1]-$hb+1]} @$nhl ];
+
+    die "error 3 $qId $qb $qe\n".Dumper($ql).Dumper($hl) if @$nql != @$nhl || locAryLen($nql) != locAryLen($nhl);
     print $fho join("\t", $id, $qId, $qb, $qe, "+", $qSize,
       $hId, $hb, $he, "+", $hSize, 
-      $e, $score, '', '')."\n";
+      $e, $score, locAry2Str($nql), locAry2Str($nhl))."\n";
   }
 }
 #print STDERR scalar(keys(%$h))." rows picked\n";

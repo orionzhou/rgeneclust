@@ -24,11 +24,11 @@ write.table(tl, fl, sep = "\t", row.names = F, col.names = T, quote = F)
 ### domain configuration & cluster assignments
 f08 = file.path(dirw, "08.gene.loc.tsv")
 t08 = read.table(f08, header = T, sep = "\t", as.is = T)
-f21 = file.path(dirw, "21.tbl")
+f21 = file.path(dirw, "21.tsv")
 t21 = read.table(f21, header = T, sep = "\t", as.is = T)
 fcoil = file.path(dirw, "ncoil/31.txt")
 tcoil = read.table(fcoil, header = F, sep = "\t", as.is = T)
-f27 = file.path(dirw, "27.pfam.htb")
+f27 = file.path(dirw, "27.pfam.tsv")
 t27 = read.table(f27, header = T, sep = "\t", as.is = T)
 f32 = file.path(dirw, "32.tbl")
 t32 = read.table(f32, header = T, sep = "\t", as.is = T)
@@ -50,8 +50,9 @@ simp_nbs <- function(domstr) {
 doms = sapply(t21$doms, simp_nbs)
 
 tcoil2 = cbind(tcoil, cc = 'CC')
-t22 = merge(t21, tcoil2, by.x = 'id', by.y = 'V1', all.x = T)
+t22 = merge(t21[,c(1:3,5)], tcoil2, by.x = 'id', by.y = 'V1', all.x = T)
 t22$conf = doms
+colnames(t22)[4] = "conf_NB_ARC"
 idxs = which(!is.na(t22$cc))
 t22$conf[idxs] = paste(t22$cc[idxs], t22$conf[idxs], sep = '-')
 table(t22$conf)
@@ -71,9 +72,9 @@ t24 = merge(t23, t08, by = 'id', all.x = T)
 table(data.frame(org=t24$org, na=is.na(t24$chr)))
 
 t51 = merge(t24, t28, by.x = 'id', by.y = 'qid', all.x = T)
-t51 = t51[,c('id','org','gid','chr','beg','end','size', 'grp','conf','doms_extra','configuration')]
-colnames(t51)[8:11] = c("cluster","configuration_simple", "extra_domains", "configuration_detail")
-fo = file.path(dirw, "51.dom.stat.tbl")
+t51 = t51[,c('id','org','gid','chr','beg','end','size', 'grp','conf','conf_NB_ARC','doms_extra','configuration')]
+colnames(t51)[c(8:9,11:12)] = c("cluster","configuration_simple", "extra_domains", "configuration_detail")
+fo = file.path(dirw, "51.dom.stat.tsv")
 write.table(t51, fo, sep = "\t", row.names = F, col.names = T, quote = F, na = '')
 
 ### sequence clustering
@@ -140,7 +141,9 @@ ggsave(p, filename = file.path(dirw, "54.share.pdf"), width = 4, height = 4)
 f_tree = file.path(dirw, "44.ft.nwk")
   tree = read.tree(f_tree)
 	tl = t41
-#	tree = root(tree, node=which.edge(tree, "Arabidopsis"))
+	rootlab = "Arabidopsis"
+	tree = root(tree, outgroup = which(tree$tip.label==rootlab))
+#	tree = rotate(tree, 1054)
   
   grps = tree$tip.label
   tip.cols = rep('black', length(grps))
@@ -166,4 +169,7 @@ f_tree = file.path(dirw, "44.ft.nwk")
 #  add.scale.bar(x = 0.02, y = tree$Nnode*0.9 , lcol = 'black')
   dev.off()
 
-write.table(grps, file.path(dirw, "44.ft.txt"), sep = "\t", row.names = F, col.names = F, quote = F, na = '')
+write.tree(tree, file.path(dirw, "x.txt"))
+tree = read.tree(file.path(dirw, "x.txt"))
+labs = tree$tip.label
+write.table(rev(labs), file.path(dirw, "44.ft.txt"), sep = "\t", row.names = F, col.names = F, quote = F, na = '')
