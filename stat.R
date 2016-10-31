@@ -77,34 +77,19 @@ colnames(t51)[c(8:9,11:12)] = c("cluster","configuration_simple", "extra_domains
 fo = file.path(dirw, "51.dom.stat.tsv")
 write.table(t51, fo, sep = "\t", row.names = F, col.names = T, quote = F, na = '')
 
-### sequence clustering
-f22 = file.path(dirw, "23.pro.nbs.tbl")
-t22 = read.table(f22, header = F, sep = "\t", as.is = T)
-colnames(t22) = c("id", "len")
+### get NB seqs to Leon
+f13 = file.path(dirw, "13.tsv")
+t13 = read.table(f13, header = T, sep = "\t", as.is = T)
 
-f32 = file.path(dirw, "34.fastortho/11.tbl")
-f32 = file.path(dirw, "32.cluster_fast.tbl")
-f32 = file.path(dirw, "32.tbl")
-t32 = read.table(f32, header = T, sep = "\t", as.is = T)
-orgs = sapply(strsplit(t32$id, split = "[|]"), '[', 1)
-gids = sapply(strsplit(t32$id, split = "[|]"), '[', 2)
-t33 = cbind(t32, org = orgs, gid = gids)
-t33 = t33[t33$org %in% c("Md", "Pp", "Fv"),]
+orgs = sapply(strsplit(t13$id, split = "[|]"), '[', 1)
+gids = sapply(strsplit(t13$id, split = "[|]"), '[', 2)
+idxs = which(orgs %in% c("Fa", "Fi", "Fni", "Fnu", "Fo", "Fv", "Ro"))
 
-t34 = merge(t33, t22, by = 'id')
-t35 = ddply(t34, .(grp), summarise, id = id[which(len==max(len))[1]])
-#fo = file.path(dirw, "41.cid.txt")
-#write.table(t35[,2], fo, sep = "\t", row.names = F, col.names = F, quote = F)
-
-#seqret.pl -d 22.nbs.pro.fas -b 41.cid.txt -o 42.fas
-#
-
-t41 = ddply(t33, .(grp), summarise, n = length(id), norg = length(unique(org)), org = paste(sort(unique(org)), sep = ",", collapse = ","))
-fo = file.path(dirw, "52.cluster.stat.tbl")
-#write.table(t33[order(t33$grp),], fo, sep = "\t", row.names = F, col.names = T, quote = F)
-t_sha = t33[t33$grp %in% t41$grp[t41$org == 'Fv,Md,Pp'],][,-2]
-fo = file.path(dirw, "58.shared.tbl")
-#write.table(t_sha[order(t_sha$grp),], fo, sep = "\t", row.names = F, col.names = T, quote = F)
+to = t13[idxs, c('id','nbs_qb','nbs_qe')]
+to$nbs_qb = to$nbs_qb-1
+fo = file.path(dirw, "13.bed")
+write.table(to, fo, sep = "\t", row.names = F, col.names = F, quote = F)
+#seqret.pl -d 05.pro.fas -b 13.bed -o 13.fas
 
 ### venn diagram for RosaR3
 tt = table(t41$org)

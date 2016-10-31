@@ -21,8 +21,18 @@ def uc2tbl(fi, fo):
     fhi.close()
     fho.close()
 def cluster2tbl(fi, fo):
-    cmd = "echo -e \"grp\tid\" | cat - %s > /tmp/out && mv /tmp/out %s" % (fi, fo)
-    os.system(cmd)
+    #cmd = "echo -e \"grp\tid\" | cat - %s > /tmp/out && mv /tmp/out %s" % (fi, fo)
+    #os.system(cmd)
+    fhi = open(fi, "r")
+    fho = open(fo, "w")
+    print >>fho, "grp\tid"
+    for line in fhi:
+        line = line.strip("\n")
+        (grp, gid) = line.split("\t")
+        grp = int(grp) + 1
+        print >>fho, "%d\t%s" % (grp, gid)
+    fhi.close()
+    fho.close()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(

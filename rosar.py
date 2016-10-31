@@ -238,7 +238,7 @@ if __name__ == '__main__':
     ###usearch.uc2tbl('31.uc', '32.tbl')
     #usearch.cluster2tbl('31.cluster', '32.tbl')
 
-    #make_cluster_consensus('32.tbl', '23.pro.nbs.fas', '42.con.fas', '41_alns')
+    make_cluster_consensus('32.tbl', '23.pro.nbs.fas', '42.con.fas', '41_alns')
     os.system("muscle -in 42.con.fas -out 43.aln -clw")
     os.system("aln.conv.py --fmt 1 43.aln 43.fas")
     os.system("aln.conv.py --fmt 2 43.aln 43.phy")
