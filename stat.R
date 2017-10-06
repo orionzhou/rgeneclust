@@ -4,11 +4,14 @@ require(VennDiagram)
 require(RColorBrewer)
 require(ape)
 
-dirw = '/home/youngn/zhoup/git/rgeneclust/rosa'
+dirw = '/home/springer/zhoux379/git/rgeneclust/rosa'
+fcfg = file.path(dirw, "../rosa.csv")
+dirw = '/home/springer/zhoux379/data/misc1/apple'
+fcfg = file.path(dirw, "apple.csv")
 setwd(dirw)
+options(stringsAsFactors = FALSE)
 
 ## read gene location
-fcfg = file.path(dirw, "../rosa.csv")
 tcfg = read.table(fcfg, header = F, sep = ",", as.is = T)
 
 tl = data.frame()
@@ -57,8 +60,9 @@ idxs = which(!is.na(t22$cc))
 t22$conf[idxs] = paste(t22$cc[idxs], t22$conf[idxs], sep = '-')
 table(t22$conf)
 
-orgs = sapply(strsplit(t22$id, split = "[|]"), '[', 1)
-gids = sapply(strsplit(t22$id, split = "[|]"), '[', 2)
+ids = sub("[|]", "\01", t22$id)
+orgs = sapply(strsplit(ids, split = "\01"), '[', 1)
+gids = sapply(strsplit(ids, split = "\01"), '[', 2)
 t23 = cbind(t22, org = orgs, gid = gids)
 table(t23[,c('conf','org')])
 stopifnot(nrow(t23) == nrow(21))
@@ -81,9 +85,11 @@ write.table(t51, fo, sep = "\t", row.names = F, col.names = T, quote = F, na = '
 f13 = file.path(dirw, "13.tsv")
 t13 = read.table(f13, header = T, sep = "\t", as.is = T)
 
-orgs = sapply(strsplit(t13$id, split = "[|]"), '[', 1)
-gids = sapply(strsplit(t13$id, split = "[|]"), '[', 2)
+ids = sub("[|]", "\01", t13$id)
+orgs = sapply(strsplit(ids, split = "\01"), '[', 1)
+gids = sapply(strsplit(ids, split = "\01"), '[', 2)
 idxs = which(orgs %in% c("Fa", "Fi", "Fni", "Fnu", "Fo", "Fv", "Ro"))
+idxs = which(orgs %in% c("Md", "Mda", "Mdg", "Mdj"))
 
 to = t13[idxs, c('id','nbs_qb','nbs_qe')]
 to$nbs_qb = to$nbs_qb-1
@@ -158,3 +164,58 @@ write.tree(tree, file.path(dirw, "x.txt"))
 tree = read.tree(file.path(dirw, "x.txt"))
 labs = tree$tip.label
 write.table(rev(labs), file.path(dirw, "44.ft.txt"), sep = "\t", row.names = F, col.names = F, quote = F, na = '')
+
+### assign physical clusters based on chromosomal locations
+source("/home/springer/zhoux379/git/luffy/r/Location.R")
+cluster_gap_map = c(
+	'Fv' = 270267,
+	'Md' = 624739,
+	'Pb' = 533904,
+	'Pm' = 335848,
+	'Pp' = 376109
+)
+
+require(xlsx)
+fo = sprintf("%s/loccluster/11.xlsx", dirw)
+for (org in names(cluster_gap_map)) {
+	cluster_gap = cluster_gap_map[org]
+	fi = sprintf("%s/loccluster/01.%s.tsv", dirw, org)
+	tt = read.table(fi, header = T, sep = "\t")
+	
+	chrs = sort(unique(tt$Chr))
+	chrmap = 1:length(chrs)
+	names(chrmap) = chrs
+
+	tt = cbind(tt, pos = chrmap[tt$Chr] * 100000000 + (tt$Start + tt$End) / 2)
+	tt = tt[order(tt$pos), ]
+	
+	x = locCluster(tt$pos, cluster_gap)
+	to = cbind(tt[,1:5], x[,3:4])
+	#fo = sprintf("%s/loccluster/05.%s.tsv", dirw, org)
+	#write.table(to, fo, sep = "\t", row.names = F, col.names = T, quote = F)
+	tag = ifelse(org == names(cluster_gap_map)[1], F, T)
+	write.xlsx(to, file = fo, sheetName = org, row.names = F, col.names = T, append = tag)
+}
+
+
+dirw = '/home/springer/zhoux379/data/in/apple.gene.pos'
+fi = file.path(dirw, "01.tsv")
+ti = read.table(fi, sep = "\t", as.is = T, header = T)
+to = data.frame()
+for (org in names(cluster_gap_map)) {
+	cluster_gap = cluster_gap_map[org]
+	cluster_gap = 200000
+	tt = ti[ti$org == org,]
+	chrs = sort(unique(tt$chr))
+	chrmap = 1:length(chrs)
+	names(chrmap) = chrs
+
+	tt = cbind(tt, pos = chrmap[tt$chr] * 100000000 + (tt$beg + tt$end) / 2)
+	tt = tt[order(tt$pos), ]
+	
+	x = locCluster(tt$pos, cluster_gap)
+	tos = cbind(tt[,-ncol(tt)], x[,3:4])
+	to = rbind(to, tos)
+}
+fo = sprintf("%s/05.200kb.tsv", dirw)
+write.table(to, fo, sep = "\t", row.names = F, col.names = T, quote = F)

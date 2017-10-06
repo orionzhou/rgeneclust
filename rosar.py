@@ -15,6 +15,18 @@ import gzip
 from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
+def read_tsv(fi, names = False, delimiter = "\t"):
+    ary = np.genfromtxt(fi, names = True, dtype = None)
+    aryo = []
+    for i in range(len(ary)):
+        row = []
+        for j in range(len(ary[i])):
+            val = ary[i][j]
+            if type(ary[i][j]) is np.bytes_:
+                val = str(ary[i][j], 'utf-8')
+            row.append(val)
+        aryo.append(row)
+    return aryo
 def read_cfg(fc):
     (orgs, fis, fgs) = ([], [], [])
     fhc = open(fc, "r")
@@ -30,8 +42,8 @@ def read_cfg(fc):
         else:
             fg = ''
         if not os.access(fi, os.R_OK):
-            print "no access to input file: %s" % fi
-            print os.access(fi, os.F_OK)
+            print("no access to input file: %s" % fi)
+            print(os.access(fi, os.F_OK))
             sys.exit(1)
         orgs.append(org)
         fis.append(fi)
@@ -39,7 +51,7 @@ def read_cfg(fc):
     fhc.close()
     return (orgs, fis, fgs)
 def merge_seqs(fis, orgs, fo):
-    print "merging input files to %s" % fo
+    print("merging input files to %s" % fo)
     seqs = []
     for i in range(0,len(orgs)):
         handle = 0
@@ -49,9 +61,8 @@ def merge_seqs(fis, orgs, fo):
             handle = open(fis[i], "rU")
         seq_it = SeqIO.parse(handle, "fasta")
         handle.close
-
-        seqs1 = [SeqRecord(rcd.seq, id = orgs[i] + "|" + rcd.id,
-            description = '') for rcd in seq_it]
+        
+        seqs1 = [SeqRecord(rcd.seq, id = orgs[i] + "|" + rcd.id, description = '') for rcd in seq_it]
         seqs += seqs1
     fho = open(fo, "w")
     SeqIO.write(seqs, fho, "fasta")
@@ -64,7 +75,7 @@ def getDigits(num):
         digit += 1
     return digit
 def pfam_scan(fm, fi, fo, nproc):
-    print "running hmmscan, using %d processors" % nproc
+    print("running hmmscan, using %d processors" % nproc)
     cmd = "hmmscan --cpu %s -o %s.1.txt %s %s" % (nproc, fo, fm, fi)
     os.system(cmd)
     cmd = "hmmc2htb.pl -i %s.1.txt -o %s.2.htb -m %s -s %s" % (fo, fo, fm, fi)
@@ -78,11 +89,11 @@ def pfam_scan(fm, fi, fo, nproc):
 from itertools import groupby
 from operator import itemgetter
 def filter_nbs(fi, fo):
-    ary = np.genfromtxt(fi, names = True, dtype = None)
+    ary = read_tsv(fi, names = True)
     ary_sorted = sorted(ary, key = lambda x: (x[0], x[1]))
 
     fho = open(fo, "w")
-    print >>fho, "\t".join(["id", "size", "doms", "nbs_e", "nbs_qb", "nbs_qe", "nbs_hb", "nbs_he", "nbs_qloc", "nbs_hloc"])
+    fho.write("\t".join(["id", "size", "doms", "nbs_e", "nbs_qb", "nbs_qe", "nbs_hb", "nbs_he", "nbs_qloc", "nbs_hloc"]) + "\n")
     for key, valuesiter in groupby(ary_sorted, key = itemgetter(0)):
         res = [v for v in valuesiter if v[8] < 1e-5 and v[2]-v[1]+1 >= 20]
         nbsdoms = [v for v in res if v[4] == 'NB-ARC']
@@ -92,11 +103,11 @@ def filter_nbs(fi, fo):
         nbsdom = nbsdoms[0]
 
         doms = [v[4] for v in res]
-        (org, gid) = key.split("|")
+        (org, gid) = str(key).split("|", 1)
         size = res[0][2]
         aryo = (key, size, ",".join(doms))
         aryo += tuple([nbsdom[i] for i in [8,1,2,5,6,10,11]]) 
-        print >>fho, "%s\t%s\t%s\t%g\t%d\t%d\t%d\t%d\t%s\t%s" % aryo
+        fho.write("%s\t%s\t%s\t%g\t%d\t%d\t%d\t%d\t%s\t%s\n" % aryo)
     fho.close()
 def extract_nbs(fi, fo, fd_cds, fd_pro, fo_pro, fn_cds, fn_pro):
     cds_dict = SeqIO.index(fd_cds, "fasta")
@@ -104,7 +115,7 @@ def extract_nbs(fi, fo, fd_cds, fd_pro, fo_pro, fn_cds, fn_pro):
     fhi = open(fi, "r")
     fho = open(fo, "w")
     header = fhi.readline().strip("\n")
-    print >>fho, header
+    fho.write(header + "\n")
     (nbs_cds_rcds, nbs_pro_rcds, pro_rcds) = ([], [], [])
     for line in fhi:
         line = line.strip("\n")
@@ -118,7 +129,7 @@ def extract_nbs(fi, fo, fd_cds, fd_pro, fo_pro, fn_cds, fn_pro):
         nbs_cds_rcds.append(cds_rcd)
         nbs_pro_rcds.append(pro_rcd)
         pro_rcds.append(pro_dict[gid])
-        print >>fho, line
+        fho.write(line + "\n")
     fho.close()
     SeqIO.write(nbs_cds_rcds, fn_cds, "fasta")
     SeqIO.write(nbs_pro_rcds, fn_pro, "fasta")
@@ -132,7 +143,7 @@ def make_cluster_consensus(fi, fs, fo, diro):
         line = line.strip("\n")
         (grp, sid) = line.split("\t")
         if grp == 'grp': continue
-        if dc.has_key(grp):
+        if grp in dc:
             dc[grp].append(sid)
         else:
             dc[grp] = [sid]
@@ -181,7 +192,7 @@ def make_cluster_consensus(fi, fs, fo, diro):
     fho = open(fo, 'w')
     SeqIO.write(con_rcds, fho, "fasta")
     fho.close()
-    print "%d non-singleton clusters written" % cnt
+    print("%d non-singleton clusters written" % cnt)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description = 'Identify, cluster and characterizie plant NBS-LRR genes'
@@ -208,40 +219,40 @@ if __name__ == '__main__':
     
     f_hmm = op.join(cdir, 'rdoms.hmm')
     if not os.access(f_hmm, os.R_OK):
-        print "no access to " + f_hmm
+        print("no access to %s" % f_hmm)
         sys.exit(1)
-    f_pfm = '/home/youngn/zhoup/Data/db/pfam_v29/Pfam-A.hmm'
+    f_pfm = '/home/youngn/zhoux379/data/db/pfam_v29/Pfam-A.hmm'
     if not os.access(f_pfm, os.R_OK):
-        print "no access to " + f_pfm
+        print("no access to %s" % f_pfm)
         sys.exit(1)
     
-    print "%d input files detected" % len(fis)
-    print "species to work on: %s" % "  ".join(orgs)
-    print "output directory: %s" % dirw
+    print("%d input files detected" % len(fis))
+    print("species to work on: %s" % "  ".join(orgs))
+    print("output directory: %s" % dirw)
    
-    #merge_seqs(fis, orgs, "00.cds.raw.fas")
-    #os.system("seq.check.pl -i 00.cds.raw.fas -o 01.cds.fas")
-    #os.system("dna2pro.pl -i 01.cds.fas -o 05.pro.fas")
-    #pfam_scan(f_hmm, '05.pro.fas', '11', args.ncpu)
-    #filter_nbs("11.tsv", "13.tsv")
-    #os.system("htb.nbs.pl -i 13.tsv -o 14.tsv") 
-    #os.system("ncoils.py 05.pro.fas")
-    #extract_nbs("14.tsv", "21.tsv", "01.cds.fas", "05.pro.fas", "22.pro.fas", "23.cds.nbs.fas", "23.pro.nbs.fas")
-    #os.system("seqlen.py 22.pro.fas 22.pro.tbl")
-    #pfam_scan(f_pfm, '22.pro.fas', '27.pfam', args.ncpu)
+    merge_seqs(fis, orgs, "00.cds.raw.fas")
+    os.system("seq.check.pl -i 00.cds.raw.fas -o 01.cds.fas")
+    os.system("dna2pro.pl -i 01.cds.fas -o 05.pro.fas")
+    pfam_scan(f_hmm, '05.pro.fas', '11', args.ncpu)
+    filter_nbs("11.tsv", "13.tsv")
+    os.system("htb.nbs.pl -i 13.tsv -o 14.tsv") 
+    os.system("ncoils.py 05.pro.fas")
+    extract_nbs("14.tsv", "21.tsv", "01.cds.fas", "05.pro.fas", "22.pro.fas", "23.cds.nbs.fas", "23.pro.nbs.fas")
+    os.system("seqlen.py 22.pro.fas 22.pro.tbl")
+    pfam_scan(f_pfm, '22.pro.fas', '27.pfam', args.ncpu)
    
     idty = 0.8
     cmd = "usearch -cluster_fast %s -sort length -id 0.8 -uc 31.uc" % '23.cds.nbs.fas'
     cmd = "usearch -cluster_agg %s -linkage min -clusterout 31.cluster -id %.02f" % ('23.pro.nbs.fas', idty)
-    print cmd
-    #os.system(cmd)
+    print(cmd)
+    os.system(cmd)
     ###usearch.uc2tbl('31.uc', '32.tbl')
-    #usearch.cluster2tbl('31.cluster', '32.tbl')
+    usearch.cluster2tbl('31.cluster', '32.tbl')
 
     make_cluster_consensus('32.tbl', '23.pro.nbs.fas', '42.con.fas', '41_alns')
     os.system("muscle -in 42.con.fas -out 43.aln -clw")
     os.system("aln.conv.py --fmt 1 43.aln 43.fas")
     os.system("aln.conv.py --fmt 2 43.aln 43.phy")
     ##os.system("FastTree -wag -boot 1000 43.fas > 44.ft.nwk")
-    #os.system('phy.py 42.con.fas 43 --seqtype aa')
+    os.system('phy.py 42.con.fas 43 --seqtype aa')
     sys.exit(1);

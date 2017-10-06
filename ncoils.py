@@ -23,7 +23,7 @@ if __name__ == '__main__':
     (fi, dirw) = (args.seqfile, args.output)
     if not op.exists(dirw): os.makedirs(dirw)
     if not os.access(fi, os.R_OK):
-        print "no access to input file: %s" % fi
+        print("no access to input file: %s" % fi)
         sys.exit(1)
    
     cdir = os.path.dirname(os.path.realpath(__file__))

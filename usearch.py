@@ -10,14 +10,14 @@ import numpy as np
 def uc2tbl(fi, fo):
     fhi = open(fi, "r")
     fho = open(fo, "w")
-    print >>fho, "grp\tid"
+    fho.write("grp\tid\n")
 
     for line in fhi:
         line = line.strip("\n")
         (tag, grp, len_size, idty, srd, ign1, ign2, cigar, id, tgt) = line.split("\t")
         grp = int(grp) + 1
         if tag == "H" or tag == "S":
-            print >>fho, "%d\t%s" % (grp, id)
+            fho.write("%d\t%s\n" % (grp, id))
     fhi.close()
     fho.close()
 def cluster2tbl(fi, fo):
@@ -25,12 +25,12 @@ def cluster2tbl(fi, fo):
     #os.system(cmd)
     fhi = open(fi, "r")
     fho = open(fo, "w")
-    print >>fho, "grp\tid"
+    fho.write("grp\tid\n")
     for line in fhi:
         line = line.strip("\n")
         (grp, gid) = line.split("\t")
         grp = int(grp) + 1
-        print >>fho, "%d\t%s" % (grp, gid)
+        fho.write("%d\t%s\n" % (grp, gid))
     fhi.close()
     fho.close()
 

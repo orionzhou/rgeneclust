@@ -4,7 +4,6 @@ import os
 import sys
 import argparse
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description = 'Extract gene locations from GFF file'
@@ -25,7 +24,7 @@ if __name__ == '__main__':
     
     (fi, fo, opt, tag) = (args.fi, args.fo, args.opt, args.tag)
     fho = open(fo, "w")
-    print >>fho, "id\tchr\tbeg\tend"
+    fho.write("id\tchr\tbeg\tend\n")
     
     fhi = open(fi, "r")
     for line in fhi:
@@ -49,8 +48,8 @@ if __name__ == '__main__':
                     gid = value
                     break
             if gid == '':
-                print "no gid for:\n", line
-            print >>fho, "%s\t%s\t%s\t%s" % (gid, chrom, beg, end)
+                print("no gid for:\n%s" % line)
+            fho.write("%s\t%s\t%s\t%s\n" % (gid, chrom, beg, end))
     fho.close()
 
 
