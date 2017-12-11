@@ -27,7 +27,8 @@ module load perl/python2/hmmer/clustalo/parallel/muscle/phyml
    * numpy http://www.numpy.org
    * pyfasta 0.5 https://pypi.python.org/pypi/pyfasta/
 
-##Usage:
+#Usage
+```bash
 usage: rosar.py [-h] [--cpu NCPU] cfgfile outdir
 
 Identify, cluster and characterize plant NBS-LRR genes
@@ -40,7 +41,7 @@ positional arguments:
 optional arguments:
   -h, --help  show this help message and exit
   --cpu NCPU  number processors to use (default: all/24)
-
+```
 Config file (test.csv):
   A text file with species identifier followed by the absolute path of 
   CDS fasta in each line, for example:
