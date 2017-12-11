@@ -54,15 +54,9 @@ def merge_seqs(fis, orgs, fo):
     print("merging input files to %s" % fo)
     seqs = []
     for i in range(0,len(orgs)):
-        handle = 0
-        if (fis[i].endswith(".gz")):
-            handle = gzip.open(fis[i], "rb")
-        else:
-            handle = open(fis[i], "rU")
-        seq_it = SeqIO.parse(handle, "fasta")
-        handle.close
-        
+        seq_it = SeqIO.parse(fis[i], "fasta")
         seqs1 = [SeqRecord(rcd.seq, id = orgs[i] + "|" + rcd.id, description = '') for rcd in seq_it]
+        print(orgs[i], len(seqs1))
         seqs += seqs1
     fho = open(fo, "w")
     SeqIO.write(seqs, fho, "fasta")
@@ -195,7 +189,7 @@ def make_cluster_consensus(fi, fs, fo, diro):
     print("%d non-singleton clusters written" % cnt)
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        description = 'Identify, cluster and characterizie plant NBS-LRR genes'
+        description = 'Identify, cluster and characterize plant NBS-LRR genes'
     )
  #   parser.add_argument('program', type=str, help='progname')
     parser.add_argument(
@@ -221,7 +215,7 @@ if __name__ == '__main__':
     if not os.access(f_hmm, os.R_OK):
         print("no access to %s" % f_hmm)
         sys.exit(1)
-    f_pfm = '/home/youngn/zhoux379/data/db/pfam_v29/Pfam-A.hmm'
+    f_pfm = '/home/springer/zhoux379/data/db/pfam/Pfam-A.hmm'
     if not os.access(f_pfm, os.R_OK):
         print("no access to %s" % f_pfm)
         sys.exit(1)

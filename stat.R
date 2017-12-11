@@ -8,6 +8,8 @@ dirw = '/home/springer/zhoux379/git/rgeneclust/rosa'
 fcfg = file.path(dirw, "../rosa.csv")
 dirw = '/home/springer/zhoux379/data/misc1/apple'
 fcfg = file.path(dirw, "apple.csv")
+dirw = '/home/springer/zhoux379/data/misc1/rg.rose2'
+fcfg = file.path(dirw, "rose2.csv")
 setwd(dirw)
 options(stringsAsFactors = FALSE)
 
