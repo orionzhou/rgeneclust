@@ -11,9 +11,11 @@ This package is dependent on a list of open source packages:
    * GNU Parallel http://www.gnu.org/software/parallel/
    * MUSCLE https://www.drive5.com/muscle/
    * PhyML http://www.atgc-montpellier.fr/phyml/
-   * most of these packages are available on MSI and can be checked and loaded by:
-     module show hmmer/clustalo/parallel/muscle/phyml
-     module load hmmer/clustalo/parallel/muscle/phyml
+   * Most of these packages are available on MSI and can be checked and loaded by:
+```module show hmmer/clustalo/parallel/muscle/phyml
+module load hmmer/clustalo/parallel/muscle/phyml
+```
+
  * Required perl modules
    * Bioperl
    * Data::Table
