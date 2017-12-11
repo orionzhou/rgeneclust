@@ -9,6 +9,11 @@ This package is dependent on a list of open source packages:
    * HMMER v3.1 http://hmmer.janelia.org
    * ClustalO v1.1.0 http://www.clustal.org/omega/
    * GNU Parallel http://www.gnu.org/software/parallel/
+   * MUSCLE https://www.drive5.com/muscle/
+   * PhyML http://www.atgc-montpellier.fr/phyml/
+   * most of these packages are available on MSI and can be checked and loaded by:
+     module show hmmer/clustalo/parallel/muscle/phyml
+     module load hmmer/clustalo/parallel/muscle/phyml
  * Required perl modules
    * Bioperl
    * Data::Table
@@ -20,7 +25,18 @@ This package is dependent on a list of open source packages:
    * pyfasta 0.5 https://pypi.python.org/pypi/pyfasta/
 
 ##Usage:
-  python rosar.py cfg.csv --out test
+usage: rosar.py [-h] [--cpu NCPU] cfgfile outdir
+
+Identify, cluster and characterize plant NBS-LRR genes
+
+positional arguments:
+  cfgfile     config file (a text file with species identifier followed by the
+              absolute path of CDS fasta in each line)
+  outdir      output directory
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --cpu NCPU  number processors to use (default: all/24)
 
 Config file (test.csv):
   A text file with species identifier followed by the absolute path of 
@@ -32,5 +48,3 @@ Config file (test.csv):
   
   with paths of the grape, apple and pear CDS sequences.
 
-Output:
-  test/
