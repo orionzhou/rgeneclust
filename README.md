@@ -23,9 +23,31 @@ module load perl/python2/hmmer/clustalo/parallel/muscle/phyml
    * List::MoreUtils
    * Time::HiRes
    * Data::Dumper
+
+The BioPerl module has been installed on MSI and can be loaded by:
+```bash
+module load bioperl
+```
+Need to set the PERL5LIB environmental variable to include the source folder:
+```bash
+export export PERL5LIB=$PATH_TO_rgeneclust:$PERL5LIB
+```
+where *$PATH_TO_rgeneclust* is the absolute path of the source directory
+
  * Required python packages:
    * numpy http://www.numpy.org
    * pyfasta 0.5 https://pypi.python.org/pypi/pyfasta/
+
+Both python packages can be installed by [pip](https://pip.pypa.io/en/stable/user_guide/#installing-packages):
+```bash
+pip install pyfasta
+pip install numpy
+```
+
+By default *pip* will install packages into */usr/local*, but you will probably need to [install into user directories](https://pip.pypa.io/en/stable/user_guide/#user-installs):
+```bash
+pip install --user pyfasta
+```
 
 #Usage
 ```bash
