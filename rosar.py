@@ -129,6 +129,9 @@ def extract_nbs(fi, fo, fd_cds, fd_pro, fo_pro, fn_cds, fn_pro):
     SeqIO.write(nbs_cds_rcds, fn_cds, "fasta")
     SeqIO.write(nbs_pro_rcds, fn_pro, "fasta")
     SeqIO.write(pro_rcds, fo_pro, "fasta")
+    if len(nbs_cds_rcds) == 0:
+        print("0 sequence has NBS domain (P-loop + GLPL) => quit")
+        exit(1)
 from Bio import AlignIO
 from Bio.Align import AlignInfo
 def make_cluster_consensus(fi, fs, fo, diro):
