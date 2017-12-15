@@ -23,7 +23,8 @@ def read_tsv(fi, names = False, delimiter = "\t"):
         for j in range(len(ary[i])):
             val = ary[i][j]
             if type(ary[i][j]) is np.bytes_:
-                val = str(ary[i][j], 'utf-8')
+                #val = str(ary[i][j], 'utf-8')
+                val = str(ary[i][j])
             row.append(val)
         aryo.append(row)
     return aryo
